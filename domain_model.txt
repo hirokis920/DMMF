@@ -1,0 +1,54 @@
+Bounded Context: Order-Taking
+
+// オーダー受付ワークフロー
+Workflow: "Place（受付） order"
+    triggered by:
+        "Order form received" event (when Quote（見積） is not checked)
+    primary input:
+        An order form
+    other input:
+        Product catalog
+    output events:
+        "Order Placed" event
+    side-effects:
+        An acknowledgment（受付確認） is sent to customer,
+        along with（同時に） the placed order
+
+// データ構造
+data UnvalidatedOrder =
+    UnvalidatedCustomerInfo
+    AND UnvalidatedShippingAddress
+    AND UnvalidatedBillingAddress
+    AND list of UnvalidatedOrderLine
+    
+data UnvalidatedLine =
+    UnvalidatedProductCode
+    AND UnvalidatedOrderQuantity
+
+data ValidatedOrder =
+    ValidatedCustomerInfo
+    AND ValidatedShippingAddress
+    AND ValidatedBillingAddress
+    AND list of ValidatedOrderLine
+    AND ValidatedAmountToBill
+
+data ValidatedOrderLine =
+    ValidatedProductCode
+    AND ValidatedOrderQuantity
+
+data PriceOrder =
+    
+
+
+data CustomerInfo = ??? //未定
+data BillingAddress = ??? //未定
+
+// 制約条件
+data WidgetCode = string starting with "W" then 4 digits
+data GizmoCode = string starting with "G" then 3 digits
+data ProductCode = WidgetCode OR GizmoCode
+
+data OrderQuantity = UnitQuantity OR KilogramQuantity
+data UnitQuantity = integer between 1 and 1000
+data KilogramQuantity = decimal between 0.05 and 100.00
+
