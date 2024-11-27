@@ -1,18 +1,19 @@
 Bounded Context: Order-Taking
 
 // オーダー受付ワークフロー
-Workflow: "Place（受付） order"
-    triggered by:
-        "Order form received" event (when Quote（見積） is not checked)
-    primary input:
-        An order form
-    other input:
-        Product catalog
-    output events:
-        "Order Placed" event
-    side-effects:
-        An acknowledgment（受付確認） is sent to customer,
-        along with（同時に） the placed order
+// Workflow: "Place order"
+//     triggered by:
+//         "Order form received" event (when Quote（見積） is not checked)
+//     primary input:
+//         An order form
+//     other input:
+//         Product catalog
+//     output events:
+//         "Order Placed" event
+//     side-effects:
+//         An acknowledgment（受付確認） is sent to customer,
+//         along with（同時に） the placed order
+
 
 // データ構造
 data UnvalidatedOrder =
@@ -36,8 +37,19 @@ data ValidatedOrderLine =
     ValidatedProductCode
     AND ValidatedOrderQuantity
 
-data PriceOrder =
-    
+data PriceOrder = 
+    ValidatedCustomerInfo
+    AND ValidatedBillingAddress
+    AND list of PriceOrderLine
+    AND AmountBill
+
+data PriceOrderLine
+    ValidatedOrderLine
+    AND LinePrice
+
+data PlacedOrderAcknowledgement =
+    PricedOrder
+    AND AcknowledgmentLetter
 
 
 data CustomerInfo = ??? //未定
@@ -51,4 +63,59 @@ data ProductCode = WidgetCode OR GizmoCode
 data OrderQuantity = UnitQuantity OR KilogramQuantity
 data UnitQuantity = integer between 1 and 1000
 data KilogramQuantity = decimal between 0.05 and 100.00
+
+// オーダー受付ワークフロー
+Workflow: "Place order" = 
+    input: OrderForm
+    output: 
+        OrderPriced event (put on a pile to send to order teams)
+        OR InvalidOrder (put on appropriate pile)
+    
+    // ステップ１
+    do ValidateOrder
+    if order is invalid then:
+        add InvalidOrder to pile
+        stop
+
+    // ステップ2
+    do PriceOrder
+
+    // ステップ3
+    do SendAcknowledgementToCustomer
+
+    // ステップ4
+    return OrderPlaced event (if no errors)
+
+substep "ValidateOrder" =
+    input: UnvalidatedOrder
+    output: ValidatedOrder OR ValidationError
+    dependencies: CheckProductCodeExists, CheckAddressExists
+
+    validate the customer name
+    check that the shipping and billing address CheckAddressExists
+    for each line:
+        check product code syntax
+        check that product code exists in ProductCatalog
+    
+    if everything is OK, then:
+        return ValidatedOrder
+    else:
+        return ValidationError
+
+substep "PriceOrder" =
+    input: ValidatedOrder
+    output: PricedOrder
+    dependencies: GetProductPrice
+
+    for each line:
+        get the price for the product
+        set the price for the line
+    set the amount to bill ( = sum of the line price)
+
+substep "SendAcknowledgementToCustomer" =
+    input: PricedOrder
+    output: None
+
+    create acknowledgment letter and send it
+    and the priced order to the customer
 
