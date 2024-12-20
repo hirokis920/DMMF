@@ -13,7 +13,36 @@ module PigLatin =
             word + "yay"
         else
             word[1..] + string word[0] + "ay"
+    
+    type CostomerId = CostomerId of Int
+    type OrderId = OrderId of Int
 
+    let costomerId = CostomerId of 42
+    let orderId = OrderId of 42
+
+    type Order = {
+        CostomerInfo: CostomerInfo
+        ...
+    }
+
+    //未定義の型はこうする
+    type Undifined = exn
+
+    type CostomerInfo = Undifined
+
+    type PlaceOrderEvents = {
+        AknowledgementSent : AknowledgementSent
+        ...
+    }
+
+    
+
+    // OR型
+    type ProductCode = 
+    | Widget of WidgetCode
+    | Gizmo of GizmoCode
+
+        
 [<EntryPoint>]
 let main args =
     for arg in args do
