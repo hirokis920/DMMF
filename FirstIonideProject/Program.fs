@@ -14,39 +14,28 @@ module PigLatin =
         else
             word[1..] + string word[0] + "ay"
     
-    type CostomerId = CostomerId of Int
-    type OrderId = OrderId of Int
+    type CustomerId = CustomerId of int
+    type OrderId = OrderId of int
 
-    let costomerId = CostomerId of 42
-    let orderId = OrderId of 42
-
-    type Order = {
-        CostomerInfo: CostomerInfo
-        ...
-    }
+    
 
     //未定義の型はこうする
     type Undifined = exn
 
     type CostomerInfo = Undifined
-
-    type PlaceOrderEvents = {
-        AknowledgementSent : AknowledgementSent
-        ...
+    type Order = {
+        CostomerInfo: CostomerInfo
     }
 
-    
+    let customerId = CustomerId  42
+    let orderId = OrderId  42
 
-    // OR型
-    type ProductCode = 
-    | Widget of WidgetCode
-    | Gizmo of GizmoCode
 
-        
 [<EntryPoint>]
 let main args =
-    for arg in args do
-        let newArg = PigLatin.toPigLatin arg
-        printfn "%s in Pig Latin is: %s" arg newArg
+
+    let customerId = PigLatin.CustomerId  42
+    let orderId = PigLatin.OrderId  42
+    printfn "%b" (orderId = orderId)
 
     0
